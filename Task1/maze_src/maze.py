@@ -1,4 +1,6 @@
 import sys
+import time
+
 
 class Node():
     def __init__(self, state, parent, action):
@@ -123,11 +125,15 @@ class Maze():
 
         # Keep track of number of states explored
         self.num_explored = 0
+        self.time_start = time.perf_counter()
+    
 
         # Initialize frontier to just the starting position
         start = Node(state=self.start, parent=None, action=None)
         frontier = StackFrontier()
         frontier.add(start)
+
+
 
         # Initialize an empty explored set
         self.explored = set()
@@ -138,7 +144,8 @@ class Maze():
             # If nothing left in frontier, then no path
             if frontier.empty():
                 self.solution = None
-                return False
+                self.time_end = time.perf_counter()
+                return False, self.time_end - self.time_start
 
             # Choose a node from the frontier
             node = frontier.remove()
@@ -155,7 +162,8 @@ class Maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-                return True
+                self.time_end = time.perf_counter()
+                return True, self.time_end - self.time_start
 
             # Mark node as explored
             self.explored.add(node.state)
@@ -230,6 +238,8 @@ if __name__ == "__main__":
     print("Solution:")
     m.print()
     m.output_image("maze.png", show_explored=True)
+    end_time = time.perf_counter()
+    print(f"Time taken: {end_time - time_start} seconds")
     
 
 
