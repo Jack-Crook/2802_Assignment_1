@@ -142,14 +142,9 @@ class Maze():
         return result
 
 
-    def solve(self):
+    def solve_dfs(self):
         """Finds a solution to maze, if one exists."""
 
-        # Keep track of number of states explored
-        self.num_explored = 0
-        self.max_frontier_size = 0
-        self.time_start = time.perf_counter()
-    
 
         # Initialize frontier to just the starting position
         start = Node(state=self.start, parent=None, action=None)
@@ -200,6 +195,33 @@ class Maze():
                 if not frontier.contains_state(state) and state not in self.explored:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
+
+    def solve(self, strategy ="dfs"):
+
+        # Keep track of number of states explored
+        self.num_explored = 0
+        self.max_frontier_size = 0
+        self.solution = None
+        self.time_start = time.perf_counter()
+
+        found = None                     
+
+        if strategy == "dfs":
+            found = self.solve_dfs()
+        elif strategy == "ids":
+            found = self.solve_ids()
+        elif strategy == "A*":
+            found = self.solve_Astar()
+        elif strategy == "IDA*":
+            found = self.solveIDAstar()
+        else:
+            raise ValueError(f"Unknown strategy '{strategy}'. Expected 'dfs', 'ids', 'A*', or 'IDA*'.")
+
+        self.time_end = time.perf_counter()
+
+
+        return found                      
+
 
             
 
