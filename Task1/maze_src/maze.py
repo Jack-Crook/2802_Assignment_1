@@ -103,6 +103,28 @@ class Maze():
             print()
         print()
 
+    def print_results(self):
+        if self.solution is None:       #print results if no solution is found
+            print("No solution")
+            print("Path cost:N/A")
+            print("Path length: N/A")
+        else:
+            actions, cells = self.solution       #print results if solution is found
+            print("-".join(actions))
+            counter = 0             # Count the number of actions
+            for action in actions:
+                counter += 1
+            print("path cost: ", counter)
+            print("path length: ", len(actions))
+        
+        print("states explored: ", self.num_explored)
+        print("original maze:")
+        print(self.originalContents.rstrip())
+        print("path:")
+        self.print()
+        print("Time: ",f"{self.time_end - self.time_start:.6f}" " seconds")
+        print("Max frontier size: ", self.max_frontier_size)
+
 
     def neighbors(self, state):
         row, col = state
@@ -125,6 +147,7 @@ class Maze():
 
         # Keep track of number of states explored
         self.num_explored = 0
+        self.max_frontier_size = 0
         self.time_start = time.perf_counter()
     
 
@@ -146,6 +169,10 @@ class Maze():
                 self.solution = None
                 self.time_end = time.perf_counter()
                 return False
+
+
+            if len(frontier.frontier) > self.max_frontier_size:     # Update max frontier size if new frontier is larger
+                self.max_frontier_size = len(frontier.frontier)
 
             # Choose a node from the frontier
             node = frontier.remove()
@@ -173,6 +200,8 @@ class Maze():
                 if not frontier.contains_state(state) and state not in self.explored:
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
+
+            
 
 
     def output_image(self, filename, show_solution=True, show_explored=False):
@@ -230,15 +259,9 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         sys.exit("Usage: python maze.py maze.txt")
     m = Maze(sys.argv[1])
-    print("Maze:")
-    m.print()
     print("Solving...")
     m.solve()
-    print("States Explored:", m.num_explored)
-    print("Solution:")
-    m.print()
-    m.output_image("maze.png", show_explored=True)
-    print(f"Time taken: {m.time_end - m.time_start} seconds")
+    m.print_results()
 
 
 
