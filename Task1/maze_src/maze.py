@@ -145,7 +145,7 @@ class Maze():
             if frontier.empty():
                 self.solution = None
                 self.time_end = time.perf_counter()
-                return False, self.time_end - self.time_start
+                return False
 
             # Choose a node from the frontier
             node = frontier.remove()
@@ -163,7 +163,7 @@ class Maze():
                 cells.reverse()
                 self.solution = (actions, cells)
                 self.time_end = time.perf_counter()
-                return True, self.time_end - self.time_start
+                return True
 
             # Mark node as explored
             self.explored.add(node.state)
@@ -238,9 +238,7 @@ if __name__ == "__main__":
     print("Solution:")
     m.print()
     m.output_image("maze.png", show_explored=True)
-    end_time = time.perf_counter()
-    print(f"Time taken: {end_time - time_start} seconds")
-    
+    print(f"Time taken: {m.time_end - m.time_start} seconds")
 
 
 
