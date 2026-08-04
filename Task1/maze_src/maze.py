@@ -7,7 +7,7 @@ class Node():
         self.action = action
 
 
-class StackFrontier():
+class StackFrontier():      #StackFronteir is a Last In First Out for DFS algorithm
     def __init__(self):
         self.frontier = []
 
@@ -103,10 +103,10 @@ class Maze():
     def neighbors(self, state):
         row, col = state
         candidates = [
-            ("up", (row - 1, col)),
-            ("down", (row + 1, col)),
-            ("left", (row, col - 1)),
-            ("right", (row, col + 1))
+            ("U", (row - 1, col)),
+            ("D", (row + 1, col)),
+            ("L", (row, col - 1)),
+            ("R", (row, col + 1))
         ]
 
         result = []
@@ -135,7 +135,8 @@ class Maze():
 
             # If nothing left in frontier, then no path
             if frontier.empty():
-                raise Exception("no solution")
+                self.solution = None
+                return False
 
             # Choose a node from the frontier
             node = frontier.remove()
@@ -152,7 +153,7 @@ class Maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-                return
+                return True
 
             # Mark node as explored
             self.explored.add(node.state)
@@ -215,15 +216,19 @@ class Maze():
         img.save(filename)
 
 
-if len(sys.argv) != 2:
-    sys.exit("Usage: python maze.py maze.txt")
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python maze.py maze.txt")
+    m = Maze(sys.argv[1])
+    print("Maze:")
+    m.print()
+    print("Solving...")
+    m.solve()
+    print("States Explored:", m.num_explored)
+    print("Solution:")
+    m.print()
+    m.output_image("maze.png", show_explored=True)
+    
 
-m = Maze(sys.argv[1])
-print("Maze:")
-m.print()
-print("Solving...")
-m.solve()
-print("States Explored:", m.num_explored)
-print("Solution:")
-m.print()
-m.output_image("maze.png", show_explored=True)
+
+
