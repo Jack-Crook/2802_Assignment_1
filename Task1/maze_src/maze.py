@@ -53,6 +53,8 @@ class Maze():
         if contents.count("B") != 1:
             raise Exception("maze must have exactly one goal")
 
+        self.originalContents = contents # Keep track of the original contents of the maze
+
         # Determine height and width of maze
         contents = contents.splitlines()
         self.height = len(contents)
