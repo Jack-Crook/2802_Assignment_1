@@ -301,12 +301,51 @@ class Maze():
         return False
 
 
-
-
-
-
     def solve_IDAstar(self):
-        pass
+        threshold = self.heuristic(self.start)
+        start = Node(state=self.start, parent=None,action=None, depth=0)
+
+        while True:
+            result = self.dfs_threshold(start, threshold)
+            if result == "found":
+                return True
+            if result == float('inf'):
+                self.solution = None
+                return False
+            threshold = result      #next threshold - min f that exceeded
+
+    def dfs_threshold(self, node, threshold):
+        f = node.depth + self.heuristic(node.state)
+
+        if f > threshold:
+            return f
+
+        self.num_explored +=1
+
+        if node.state == self.goal:
+            actions = []
+            cells = []
+            n = node
+
+            while n.parent is not None:
+                actions.append(n.action)
+                cells.append(n.state)
+                n = n.parent
+            actions.reverse()
+            cells.reverse()
+            self.solution = (actions, cells)
+            return "found"
+
+        min_exceeded = float('inf')
+        for action, state in self.neighbors(node.state):
+            child = Node(state=state, parent=node, action=action, depth=node.depth +1)
+            result = self.dfs_threshold(child, threshold)
+            if result == "found":
+                return "found"
+            if result < min_exceeded:
+                min_exceeded = result
+
+        return min_exceeded
 
 
 
@@ -392,11 +431,12 @@ class Maze():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python maze.py maze.txt")
+    if len(sys.argv) < 2:
+        sys.exit("Usage: python maze.py maze.txt [strategy]")
     m = Maze(sys.argv[1])
+    strategy = sys.argv[2] if len(sys.argv) == 3 else "dfs"
     print("Solving...")
-    m.solve()
+    m.solve(strategy)
     m.print_results()
 
 
