@@ -1,5 +1,6 @@
 import sys
 import time
+import heapq
 
 
 class Node():
@@ -252,10 +253,57 @@ class Maze():
                     
 
 
+    def heuristic(self, state):
+        return abs(state[0] - self.goal[0]) + abs(state[1] - self.goal[1])
 
 
     def solve_Astar(self):
-        pass
+        counter = 0
+        heap = []
+        start = Node(state=self.start, parent = None,  action=None, depth = 0)
+        h = self.heuristic(self.start)
+        heapq.heappush(heap, (h, counter, start))   # f = g + h, g=0 so f=h
+
+        self.explored = set()
+
+        while heap:
+            if len(heap) > self.max_frontier_size:
+                self.max_frontier_size = len(heap)
+
+            f,_, node = heapq.heappop(heap)
+            if node.state in self.explored:
+                continue
+
+            if node.state == self.goal:
+                actions = []
+                cells = []
+                while node.parent is not None:
+                    actions.append(node.action)
+                    cells.append(node.state)
+                    node = node.parent
+                actions.reverse()
+                cells.reverse()
+                self.solution = (actions, cells)
+                return True
+
+            self.explored.add(node.state)
+            self.num_explored +=1
+
+            for action, state in self.neighbors(node.state):
+                if state not in self.explored:
+                    g = node.depth + 1
+                    h = self.heuristic(state)
+                    child = Node(state=state, parent=node, action=action, depth=g)
+                    counter+=1
+                    heapq.heappush(heap, (g+h,  counter, child))
+
+        self.solution = None
+        return False
+
+
+
+
+
 
     def solve_IDAstar(self):
         pass
