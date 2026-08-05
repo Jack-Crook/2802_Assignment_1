@@ -3,10 +3,11 @@ import time
 
 
 class Node():
-    def __init__(self, state, parent, action):
+    def __init__(self, state, parent, action, depth=0):     #depth = 0 as solve_dfs doesnt pass it
         self.state = state
         self.parent = parent
         self.action = action
+        self.depth = depth
 
 
 class StackFrontier():      #StackFronteir is a Last In First Out for DFS algorithm
@@ -145,13 +146,10 @@ class Maze():
     def solve_dfs(self):
         """Finds a solution to maze, if one exists."""
 
-
         # Initialize frontier to just the starting position
         start = Node(state=self.start, parent=None, action=None)
         frontier = StackFrontier()
         frontier.add(start)
-
-
 
         # Initialize an empty explored set
         self.explored = set()
@@ -162,7 +160,6 @@ class Maze():
             # If nothing left in frontier, then no path
             if frontier.empty():
                 self.solution = None
-                self.time_end = time.perf_counter()
                 return False
 
 
@@ -184,7 +181,6 @@ class Maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
-                self.time_end = time.perf_counter()
                 return True
 
             # Mark node as explored
@@ -196,7 +192,77 @@ class Maze():
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
 
-    def solve(self, strategy ="dfs"):
+
+
+    def solve_ids(self):
+        limit = 0
+
+        # Keep looping until solution found
+        while True:
+            result = self.depth_limited_dfs(limit)
+            if result == "found":
+                return True
+            if result == "failure":     #no node exists
+                self.solution = None
+                return False
+            limit +=1        # result == "cutoff"then increase limit and try again
+
+    
+
+
+    def depth_limited_dfs(self, limit):
+        self.explored = set()   #reset between IDS passes
+        cutoff_occured = False
+        frontier = StackFrontier()
+        frontier.add(Node(state=self.start, parent=None, action=None, depth=0))  # no depth!
+
+        while not frontier.empty():
+            node =  frontier.remove()
+            self.num_explored +=1
+
+            if len(frontier.frontier) > self.max_frontier_size:
+                 self.max_frontier_size = len(frontier.frontier)
+
+
+            if node.state == self.goal:
+                actions = []
+                cells = []
+                while node.parent is not None:
+                    actions.append(node.action)
+                    cells.append(node.state)
+                    node = node.parent
+                actions.reverse()
+                cells.reverse()
+                self.solution = (actions, cells)
+                return "found"
+
+            if node.depth == limit:
+                cutoff_occured = True       #wall hit dont expand
+            else:
+                for action, state in self.neighbors(node.state):
+                    if not frontier.contains_state(state) and state not in self.explored:
+                        child = Node(state=state, parent=node, action=action, depth=node.depth+1)
+                        frontier.add(child)
+
+        if cutoff_occured:
+            return "cutoff"
+        else:
+            return "failure"
+
+                    
+
+
+
+
+    def solve_Astar(self):
+        pass
+
+    def solve_IDAstar(self):
+        pass
+
+
+
+    def solve(self, strategy ="dfs"):       #default strategy is dfs 
 
         # Keep track of number of states explored
         self.num_explored = 0
@@ -213,7 +279,7 @@ class Maze():
         elif strategy == "A*":
             found = self.solve_Astar()
         elif strategy == "IDA*":
-            found = self.solveIDAstar()
+            found = self.solve_IDAstar()
         else:
             raise ValueError(f"Unknown strategy '{strategy}'. Expected 'dfs', 'ids', 'A*', or 'IDA*'.")
 
