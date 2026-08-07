@@ -194,7 +194,6 @@ class Maze():
                     frontier.add(child)
 
 
-
     def solve_ids(self):
         limit = 0
 
@@ -209,8 +208,6 @@ class Maze():
             limit +=1        # result == "cutoff"then increase limit and try again
 
     
-
-
     def depth_limited_dfs(self, limit):
         self.explored = set()   #reset between IDS passes
         cutoff_occured = False
@@ -223,7 +220,6 @@ class Maze():
 
             if len(frontier.frontier) > self.max_frontier_size:
                  self.max_frontier_size = len(frontier.frontier)
-
 
             if node.state == self.goal:
                 actions = []
@@ -249,8 +245,6 @@ class Maze():
             return "cutoff"
         else:
             return "failure"
-
-                    
 
 
     def heuristic(self, state):
