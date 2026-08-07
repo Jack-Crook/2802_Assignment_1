@@ -269,6 +269,7 @@ class Maze():
 
         self.explored = set()
 
+
         while heap:
             if len(heap) > self.max_frontier_size:
                 self.max_frontier_size = len(heap)
@@ -276,7 +277,8 @@ class Maze():
             f,_, node = heapq.heappop(heap)
             if node.state in self.explored:
                 continue
-
+            self.num_explored +=1
+    
             if node.state == self.goal:
                 actions = []
                 cells = []
@@ -290,7 +292,6 @@ class Maze():
                 return True
 
             self.explored.add(node.state)
-            self.num_explored +=1
 
             for action, state in self.neighbors(node.state):
                 if state not in self.explored:
