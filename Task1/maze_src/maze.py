@@ -341,6 +341,8 @@ class Maze():
 
         min_exceeded = float('inf')
         for action, state in self.neighbors(node.state):
+            if self.is_on_path(node, state) is True:        # skip this neighbour coz it's on the current path, so moving there would loop
+                continue
             child = Node(state=state, parent=node, action=action, depth=node.depth +1)
             result = self.dfs_threshold(child, threshold)
             if result == "found":
