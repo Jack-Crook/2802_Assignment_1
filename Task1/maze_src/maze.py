@@ -208,8 +208,17 @@ class Maze():
             limit +=1        # result == "cutoff"then increase limit and try again
 
     
+    def is_on_path(self, node, state):     
+    # Walk back through parent pointers to check if `state` is an ancestor
+        current = node
+        while current is not None:
+            if current.state == state:
+                return True
+            current = current.parent
+        return False
+
+
     def depth_limited_dfs(self, limit):
-        self.explored = set()   #reset between IDS passes
         cutoff_occured = False
         frontier = StackFrontier()
         frontier.add(Node(state=self.start, parent=None, action=None, depth=0))  # no depth!
@@ -237,7 +246,7 @@ class Maze():
                 cutoff_occured = True       #wall hit dont expand
             else:
                 for action, state in self.neighbors(node.state):
-                    if not frontier.contains_state(state) and state not in self.explored:
+                    if not frontier.contains_state(state) and not self.is_on_path(node, state):
                         child = Node(state=state, parent=node, action=action, depth=node.depth+1)
                         frontier.add(child)
 
@@ -368,10 +377,6 @@ class Maze():
 
 
         return found                      
-
-
-            
-
 
     def output_image(self, filename, show_solution=True, show_explored=False):
         from PIL import Image, ImageDraw
