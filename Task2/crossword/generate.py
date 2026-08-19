@@ -128,12 +128,6 @@ class CrosswordCreator():
         return revised
             
 
-            
-        
-
-        
-        raise NotImplementedError
-
     def ac3(self, arcs=None):
         """
         Update `self.domains` such that each variable is arc consistent.
@@ -143,6 +137,14 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+        arcs = []
+        queue = (x, y) if arcs is not None  
+        while arcs is not None:
+            (x, y) = queue.dequeue()
+
+
+
+
         raise NotImplementedError
 
     def assignment_complete(self, assignment):
