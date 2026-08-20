@@ -128,7 +128,7 @@ class CrosswordCreator():
         return revised
             
 
-    def ac3(self, arcs=None):
+    def ac3(self, arcs=None): 
         """
         Update `self.domains` such that each variable is arc consistent.
         If `arcs` is None, begin with initial list of all arcs in the problem.
@@ -137,21 +137,28 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        arcs = []
-        queue = (x, y) if arcs is not None  
-        while arcs is not None:
-            (x, y) = queue.dequeue()
+
+        queue = arcs  #no arcs given, so start from every arc in the problem
 
 
+        while queue:                #keep going until no arcs left to check. empty queue means every arc is consistent
+            (x, y) = queue.pop(0)   #take next arc; directional — this checks x against y, not both ways
+            if self.revise(x, y):
+                if not self.domains[x]:     # x shrank, so recheck arcs pointing INTO x; (z, x) not (x, z)
+                    return False
+                for z in self.crossword.neighbors(x):
+                    if z!=y:
+                        queue.append((z, x))
+        return True
 
-
-        raise NotImplementedError
 
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
+
+
         raise NotImplementedError
 
     def consistent(self, assignment):
