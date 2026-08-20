@@ -138,17 +138,20 @@ class CrosswordCreator():
         return False if one or more domains end up empty.
         """
 
-        queue = arcs  #no arcs given, so start from every arc in the problem
+        if arcs is None:        #no arcs given → start from every arc in the problem
+            queue = [(x, y) for x in self.crossword.variables for y in self.crossword.neighbors(x)] #airs are directional, so looping over all variables gives both (x,y) and (y,x)
+        else:
+            queue = list(arcs)  #opy so we don't mutate the caller's list
 
 
         while queue:                #keep going until no arcs left to check. empty queue means every arc is consistent
             (x, y) = queue.pop(0)   #take next arc; directional — this checks x against y, not both ways
             if self.revise(x, y):
-                if not self.domains[x]:     # x shrank, so recheck arcs pointing INTO x; (z, x) not (x, z)
+                if not self.domains[x]:     
                     return False
                 for z in self.crossword.neighbors(x):
-                    if z!=y:
-                        queue.append((z, x))
+                    if z!=y:    
+                        queue.append((z, x))        # x shrank, so recheck arcs pointing INTO x; (z, x) not (x, z)
         return True
 
 
