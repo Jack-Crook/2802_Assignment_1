@@ -176,8 +176,8 @@ class CrosswordCreator():
         puzzle without conflicting characters); return False otherwise.
         """
 
-        for var, word in assignment.items():
-            if len(word) != var.length:
+        for var, word in assignment.items():                                        #an assignment is consistent if it satisfies all of the constraints of the problem: that is to say, 
+            if len(word) != var.length:                                             #all values are distinct, every value is the correct length, and there are no conflicts between neighboring variables    
                 return False
             
             if word in word.seen():
@@ -195,7 +195,6 @@ class CrosswordCreator():
         return True
 
 
-        raise NotImplementedError
 
     def order_domain_values(self, var, assignment):
         """
