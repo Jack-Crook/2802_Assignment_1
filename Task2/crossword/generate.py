@@ -161,14 +161,40 @@ class CrosswordCreator():
         crossword variable); return False otherwise.
         """
 
+        if len(assignment) == len(self.crossword.variables):    #a variable is only added to the assignment dictionary once it receives a word selection                                                
+                                                                # if the length of the assignment dic is the same as the variables, the assigment is complete.
+            return True                                         #An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on
+        
+        return False
 
-        raise NotImplementedError
+
+
 
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
+
+        for var, word in assignment.items():
+            if len(word) != var.length:
+                return False
+            
+            if word in word.seen():
+                return False
+
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor in assignment:
+                    overlap = self.crossword.overlaps[var, neighbor]
+                    if overlap:
+                        i, j = overlap
+                    # If overlapping indices do not match characters, it's inconsistent
+                        if word[i] != assignment[neighbor][j]:
+                            return False
+                        
+        return True
+
+
         raise NotImplementedError
 
     def order_domain_values(self, var, assignment):
