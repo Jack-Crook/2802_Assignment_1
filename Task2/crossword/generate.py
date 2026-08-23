@@ -204,13 +204,27 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
 
-        if var in assignment:
-            
+        word_ruleout = {word : 0 for word in self.domains[var]}
+
+        for word in self.domains[var]: # Iterate through all possible values of var:
+
+            # Iterate through neighboring variables and values:
+            for other_var in self.crossword.neighbors(var):
+                for other_word in self.domains[other_var]:
+
+
+                    # If val rules out other val, add to ruled_out count
+                    if not self.revised(var, other_var, word, other_word):
+                        word_ruleout[word] += 1
+
+
+        # Return list of vals sorted from fewest to most other_vals ruled out:
+        return sorted([x for x in word_ruleout], key= lambda x: word_ruleout[x])
 
 
 
 
-        raise NotImplementedError
+    
 
     def select_unassigned_variable(self, assignment):
         """
@@ -220,7 +234,18 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+
+        # Get set of unassigned variables
+        unassigned = set(self.domains.keys()) - set(assignment.keys())
+
+
+        # Create list of variables, sorted by MRV and highest degree
+        result = [var for var in unassigned]
+        result.sort( key = lambda x: (len(self.domains[x]), - len(self.crossword.neighbors(x))))
+
+        return result[0]
+
+    
 
     def backtrack(self, assignment):
         """
@@ -231,8 +256,28 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
 
+
+        global BACKTRACK_COUNTER
+        global WORDS_TESTED
+        BACKTRACK_COUNTER += 1
+
+        # If all variables are assigned, return assignment:
+        if self.assignment_complete(assignment):
+            return assignment
+
+        #Otherwise select an unassigned variable:
+        var = self.select_unassigned_variable(assignment)
+        for word in self.order_domain_values(var, assignment):
+            assignment[var] = word
+            WORDS_TESTED += 1
+            if self.consistent(assignment):
+                result = self.backtrack(assignment)
+                if result:
+                    return result
+            del assignment[var]
+        return None
+    
 
 def main():
 
