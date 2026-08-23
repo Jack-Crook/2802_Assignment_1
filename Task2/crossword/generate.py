@@ -2,6 +2,11 @@ import sys
 
 from crossword import *
 
+BACKTRACK_COUNTER = 0
+WORDS_TESTED = 0
+
+
+
 
 class CrosswordCreator():
 
@@ -179,18 +184,21 @@ class CrosswordCreator():
         for var, word in assignment.items():                                        #an assignment is consistent if it satisfies all of the constraints of the problem: that is to say, 
             if len(word) != var.length:                                             #all values are distinct, every value is the correct length, and there are no conflicts between neighboring variables    
                 return False
-            
-            if word in word.seen():
+
+            # If overlapping indices do not match characters, it's inconsistent
+            if len(assignment.values()) != len(set(assignment.values())):
                 return False
+            
 
             for neighbor in self.crossword.neighbors(var):
                 if neighbor in assignment:
                     overlap = self.crossword.overlaps[var, neighbor]
                     if overlap:
                         i, j = overlap
-                    # If overlapping indices do not match characters, it's inconsistent
-                        if word[i] != assignment[neighbor][j]:
+
+                        if word[i] != assignment[neighbor][j]: 
                             return False
+                    
                         
         return True
 
@@ -206,16 +214,23 @@ class CrosswordCreator():
 
         word_ruleout = {word : 0 for word in self.domains[var]}
 
-        for word in self.domains[var]: # Iterate through all possible values of var:
+        # Iterate through all possible values of var:
+        for word in self.domains[var]: 
+         
 
             # Iterate through neighboring variables and values:
             for other_var in self.crossword.neighbors(var):
-                for other_word in self.domains[other_var]:
+                 for other_word in self.domains[other_var]:
 
+                    overlap = self.crossword.overlaps[var, other_var]
+                    if overlap is None:
+                        continue
 
-                    # If val rules out other val, add to ruled_out count
-                    if not self.revised(var, other_var, word, other_word):
-                        word_ruleout[word] += 1
+                    i, j = overlap
+
+                    if word[i] != other_word[j]:
+                        word_ruleout[word] +=1
+
 
 
         # Return list of vals sorted from fewest to most other_vals ruled out:
