@@ -1,3 +1,4 @@
+import os
 import sys
 
 from crossword import *
@@ -66,7 +67,11 @@ class CrosswordCreator():
              self.crossword.height * cell_size),
             "black"
         )
-        font = ImageFont.truetype("assets/fonts/OpenSans-Regular.ttf", 80)
+        font_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "assets", "fonts", "OpenSans-Regular.ttf"
+        )   #resolve relative to this file so it works from any working directory
+        font = ImageFont.truetype(font_path, 80)
         draw = ImageDraw.Draw(img)
 
         for i in range(self.crossword.height):
@@ -181,15 +186,15 @@ class CrosswordCreator():
         puzzle without conflicting characters); return False otherwise.
         """
 
+        # All values must be distinct - checked once, not once per variable
+        if len(assignment.values()) != len(set(assignment.values())):
+            return False
+
         for var, word in assignment.items():                                        #an assignment is consistent if it satisfies all of the constraints of the problem: that is to say, 
             if len(word) != var.length:                                             #all values are distinct, every value is the correct length, and there are no conflicts between neighboring variables    
                 return False
 
             # If overlapping indices do not match characters, it's inconsistent
-            if len(assignment.values()) != len(set(assignment.values())):
-                return False
-            
-
             for neighbor in self.crossword.neighbors(var):
                 if neighbor in assignment:
                     overlap = self.crossword.overlaps[var, neighbor]
@@ -214,20 +219,21 @@ class CrosswordCreator():
 
         word_ruleout = {word : 0 for word in self.domains[var]}
 
-        # Iterate through all possible values of var:
-        for word in self.domains[var]: 
-         
+        # Iterate through neighboring variables:
+        for other_var in self.crossword.neighbors(var):
 
-            # Iterate through neighboring variables and values:
-            for other_var in self.crossword.neighbors(var):
-                 for other_word in self.domains[other_var]:
+            if other_var in assignment:     #already has a word, so nothing left to rule out for it
+                continue
 
-                    overlap = self.crossword.overlaps[var, other_var]
-                    if overlap is None:
-                        continue
+            overlap = self.crossword.overlaps[var, other_var]    #same for every word, so look it up once per neighbour
+            if overlap is None:
+                continue
 
-                    i, j = overlap
+            i, j = overlap
 
+            # Count how many of the neighbour's remaining words each candidate would eliminate:
+            for word in word_ruleout:
+                for other_word in self.domains[other_var]:
                     if word[i] != other_word[j]:
                         word_ruleout[word] +=1
 
@@ -317,6 +323,10 @@ def main():
         creator.print(assignment)
         if output:
             creator.save(assignment, output)
+
+    # Report search statistics
+    print(f"Backtrack calls: {BACKTRACK_COUNTER}")
+    print(f"Words tested: {WORDS_TESTED}")
 
 
 if __name__ == "__main__":
