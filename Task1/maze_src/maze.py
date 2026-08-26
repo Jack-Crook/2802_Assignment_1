@@ -324,7 +324,11 @@ class Maze():
         if f > threshold:
             return f
 
-        self.num_explored +=1
+        self.num_explored += 1
+
+        if node.depth > self.max_frontier_size:
+            self.max_frontier_size = node.depth
+
 
         if node.state == self.goal:
             actions = []
@@ -440,6 +444,10 @@ if __name__ == "__main__":
     print("Solving...")
     m.solve(strategy)
     m.print_results()
+
+    maze_name = sys.argv[1].split(".")[0]
+    m.output_image(f"{maze_name}_{strategy}.png", show_explored=True)
+
 
 
 
