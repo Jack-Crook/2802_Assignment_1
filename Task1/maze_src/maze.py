@@ -364,8 +364,10 @@ class Maze():
         # Keep track of number of states explored
         self.num_explored = 0
         self.max_frontier_size = 0
+        self.explored = set()
         self.solution = None
         self.time_start = time.perf_counter()
+
 
         found = None                     
 
